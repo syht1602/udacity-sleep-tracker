@@ -28,20 +28,20 @@ abstract class SleepDatabase : RoomDatabase() {
     companion object {
 
         @Volatile
-        private var INSTANT: SleepDatabase? = null
+        private var INSTANCE: SleepDatabase? = null
 
         fun getInstance(context: Context): SleepDatabase {
             synchronized(this) {
-                var instant = INSTANT
-                if (instant == null) {
-                    instant = Room.databaseBuilder(
-                        context,
+                var instance = INSTANCE
+                if (instance == null) {
+                    instance = Room.databaseBuilder(
+                        context.applicationContext,
                         SleepDatabase::class.java,
                         "sleep_history_database"
                     ).fallbackToDestructiveMigration().build()
-                    INSTANT = instant
+                    INSTANCE = instance
                 }
-                return instant
+                return instance
             }
         }
     }

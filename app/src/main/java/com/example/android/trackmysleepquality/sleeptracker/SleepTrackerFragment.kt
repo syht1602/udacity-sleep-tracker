@@ -20,10 +20,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.example.android.trackmysleepquality.R
+import com.example.android.trackmysleepquality.database.SleepDatabase
 import com.example.android.trackmysleepquality.databinding.FragmentSleepTrackerBinding
+import com.google.android.material.snackbar.Snackbar
 
 /**
  * A fragment with buttons to record start and end times for sleep, which are saved in
@@ -32,18 +36,63 @@ import com.example.android.trackmysleepquality.databinding.FragmentSleepTrackerB
  */
 class SleepTrackerFragment : Fragment() {
 
+    private lateinit var viewModel: SleepTrackerViewModel
+
     /**
      * Called when the Fragment is ready to display content to the screen.
      *
      * This function uses DataBindingUtil to inflate R.layout.fragment_sleep_quality.
      */
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
 
         // Get a reference to the binding object and inflate the fragment views.
-        val binding: FragmentSleepTrackerBinding = DataBindingUtil.inflate(
-                inflater, R.layout.fragment_sleep_tracker, container, false)
+        val binding = FragmentSleepTrackerBinding.inflate(inflater, container, false)
 
+        val application = requireNotNull(requireActivity().application)
+
+        val sleepDatabase = SleepDatabase.getInstance(application).sleepDatabaseDao
+
+        val viewModelFactory = SleepTrackerViewModelFactory(sleepDatabase, application)
+
+        viewModel = ViewModelProvider(
+            this, viewModelFactory
+        )[SleepTrackerViewModel::class.java]
+
+        binding.sleepTrackerViewModel = viewModel
+
+        with(viewModel) {
+            navigateToQuality.observe(viewLifecycleOwner, Observer {
+                it?.let {
+                    findNavController().navigate(
+                        SleepTrackerFragmentDirections.actionSleepTrackerFragmentToSleepQualityFragment(
+                            it.nightID
+                        )
+                    )
+                    doneNavigating()
+                }
+            })
+        }
+
+        binding.lifecycleOwner = this
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        with(viewModel){
+            showSnakeBarEvent.observe(viewLifecycleOwner) {
+                if (it) {
+                    Snackbar.make(
+//                        requireActivity().findViewById(android.R.id.content),
+                        requireView(),
+                        getString(R.string.cleared_message),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                    doneNavigating()
+                }
+            }
+        }
     }
 }

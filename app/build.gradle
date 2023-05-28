@@ -17,7 +17,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'androidx.navigation.safeargs'
+apply plugin: 'androidx.navigation.safeargs.kotlin'
 
 android {
     compileSdkVersion 33
@@ -29,6 +29,7 @@ android {
         versionName "1.0"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -55,12 +56,10 @@ dependencies {
     implementation "androidx.core:core-ktx:$version_core"
 
     // Room and Lifecycle dependencies
-//    implementation "androidx.room:room-runtime:$version_room"
-//    kapt "androidx.room:room-compiler:$version_room"
-
     implementation "androidx.room:room-runtime:$version_room"
-    annotationProcessor "androidx.room:room-compiler:$version_room"
+    kapt "androidx.room:room-compiler:$version_room"
     implementation "androidx.lifecycle:lifecycle-extensions:$version_lifecycle_extensions"
+
 
     // Coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version_coroutine"
@@ -69,8 +68,8 @@ dependencies {
     // Navigation
 //    implementation "android.arch.navigation:navigation-fragment-ktx:$version_navigation"
 //    implementation "android.arch.navigation:navigation-ui-ktx:$version_navigation"
-    implementation 'androidx.navigation:navigation-fragment:2.3.5'
-    implementation 'androidx.navigation:navigation-ui:2.3.5'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
 
     // ViewModel and LiveData
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$version_lifecycle"
